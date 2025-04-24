@@ -88,6 +88,7 @@ bool do_exec(int count, ...)
 */
 bool do_exec_redirect(const char *outputfile, int count, ...)
 {
+    
     va_list args;
     va_start(args, count);
     char * command[count+1];
