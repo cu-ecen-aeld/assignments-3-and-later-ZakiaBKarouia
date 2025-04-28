@@ -59,7 +59,6 @@ do
 	./writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
 done
 
-ls -la
 OUTPUTSTRING=$(./finder.sh "$WRITEDIR" "$WRITESTR")
 
 # remove temporary directories
