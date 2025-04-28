@@ -1,26 +1,27 @@
 # Compiler and flags
-CROSS_COMPILE ?= aarch64-none-linux-gnu-
-#CC := $(CROSS_COMPILE)gcc
-CC = gcc
-CFLAGS = -Wall -std=c99
+CC := $(CROSS_COMPILE)gcc
+CFLAGS := -Wall -Werror -g
 
-# Output executable
-TARGET = writer
+# Target executable
+TARGET := writer
 
 # Source files
-SRC = writer.c
+SRCS := writer.c
+OBJS := $(notdir $(SRCS:.c=.o))
 
-# Object files
-OBJ = $(SRC:.c=.o)
+# Default target: build the writer application
+.PHONY: all
+all: $(TARGET)
 
-# Compile the program
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET)
+# Compile the writer program
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Compile the source file into an object file
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# Compile object files
+finder-app/%.o: finder-app/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Clean up the object and executable files
+# Clean target to remove binaries and object files
+.PHONY: clean
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(TARGET) $(OBJS)
