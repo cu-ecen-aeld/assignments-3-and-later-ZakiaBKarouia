@@ -10,7 +10,15 @@ set -u
 NUMFILES=10
 WRITESTR=AELD_IS_FUN
 WRITEDIR=/tmp/aeld-data
-username=$(cat conf/username.txt)
+RUNNING_BUILDROOT=${RUNNING_BUILDROOT:-true}
+
+if $RUNNING_BUILDROOT; then
+    CONFIG_DIR="/etc/finder-app/conf"
+else
+    CONFIG_DIR="conf"
+fi
+
+username=$(cat "$CONFIG_DIR/username.txt")
 
 if [ $# -lt 3 ]
 then
@@ -34,7 +42,7 @@ echo "Writing ${NUMFILES} files containing string ${WRITESTR} to ${WRITEDIR}"
 rm -rf "${WRITEDIR}"
 
 # create $WRITEDIR if not assignment1
-assignment=`cat conf/assignment.txt`
+assignment=$(cat "$CONFIG_DIR/assignment.txt")
 
 if [ $assignment != 'assignment1' ]
 then
@@ -56,11 +64,18 @@ fi
 
 for i in $( seq 1 $NUMFILES)
 do
-	./writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
+if $RUNNING_BUILDROOT; then
+		writer "$WRITEDIR/${username}$i.txt" "$WRITESTR" # assuming executable in is the PATH
+	else
+		./writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
+	fi
 done
 
-OUTPUTSTRING=$(./finder.sh "$WRITEDIR" "$WRITESTR")
-
+if $RUNNING_BUILDROOT; then
+	OUTPUTSTRING=$(finder.sh "$WRITEDIR" "$WRITESTR") # assuming executable in is the PATH 
+else
+	OUTPUTSTRING=$(./finder.sh "$WRITEDIR" "$WRITESTR")
+fi
 # remove temporary directories
 rm -rf /tmp/aeld-data
 
@@ -72,4 +87,7 @@ if [ $? -eq 0 ]; then
 else
 	echo "failed: expected  ${MATCHSTR} in ${OUTPUTSTRING} but instead found"
 	exit 1
+fi
+if $RUNNING_BUILDROOT; then
+    echo "${OUTPUTSTRING}" > /tmp/assignment4-result.txt # write a file with output of the finder command
 fi
